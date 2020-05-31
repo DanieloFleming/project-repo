@@ -1,32 +1,73 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <transition
+      name="fade"
+      mode="in-out">
+      <router-view />
+    </transition>
+    <mouse-trace />
   </div>
 </template>
+<script>
+import MouseTrace from '@/components/MouseTrace';
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+export default {
+  components: { MouseTrace },
+  beforeMount () {
+    window.addEventListener('touchstart', this.setMobileMode.bind(this));
+    window.addEventListener('resize', this.setWindowSize.bind(this));
+    this.setWindowSize();
+  },
+  beforeDestroy () {
+    window.removeEventListener('touchstart', this.setMobileMode);
+    window.removeEventListener('resize', this.setWindowSize);
+  },
+  methods: {
+    setMobileMode () {
+      window.removeEventListener('touchstart', this.setMobileMode.bind(this));
+      this.$store.commit('setMobile', true);
+    },
+    setWindowSize () {
+      const windowHeight = window.innerHeight;
+      this.$store.commit('setWindowHeight', windowHeight);
     }
   }
-}
+};
+</script>
+<style lang="scss">
+  html, body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    text-rendering: optimizeSpeed;
+  }
+  *{
+    margin: 0;
+    padding: 0;
+  }
+  *, *:before, *:after {
+    box-sizing: border-box;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fade-leave-active {
+    position: absolute !important;
+    top: 0;
+    width: 100%;
+    transition-duration: 1s;
+    transition-property: opacity;
+    transition-timing-function: ease;
+  }
+</style>
+<style lang="scss" scoped>
+  #app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
 </style>
